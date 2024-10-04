@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flask_backend
+    image: faris/flask_backend:1.0.0
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres1234@flask_db:5432/todo_db
+      - FLASK_ENV=development
+    volumes:
+      - ./backend/app.py:/usr/src/todo-app/app.py # Mount only necessary files
+    depends_on:
+      - flask_db
+  flask_db:
+    container_name: flask_db
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres1234
+      POSTGRES_DB: todo_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src # Mount only necessary directories
+      - ./frontend/public:/app/public
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+volumes:
+  pgdata: {}
