@@ -5,19 +5,44 @@ import logging
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) # Enable CORS for all routes
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+
+# Set up logging
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 # Get database URL from environment variable
 DB_URL = os.environ.get('DATABASE_URL')
 
+def setup_logger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    file_handler = logging.FileHandler('logfile.log')
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+    return logger
+
+
 # Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
+
+# Flag to track if the connection success has been logged
+connection_success_logged = False
 
 def get_db_connection():
+    global connection_success_logged  # Access the global flag
     try:
         conn = psycopg2.connect(DB_URL)
-        logger.info("Database connection successful")
+        if not connection_success_logged:
+            logger.info("Database connection successful")
+            connection_success_logged = True  # Set the flag to True
         return conn
     except psycopg2.DatabaseError as error:
         logger.error(f"Database connection failed: {error}")
@@ -160,6 +185,12 @@ def update_todo(todo_id):
 
         cur = conn.cursor()
         cur.execute("UPDATE todos SET title = %s, status = %s WHERE id = %s;", (title, status, todo_id))
+
+        # Check if any row was affected by the UPDATE
+        if cur.rowcount == 0:
+            conn.close()  # Close the connection before returning
+            return jsonify({'error': 'Todo not found'}), 404
+        
         conn.commit()
         cur.close()
         conn.close()
@@ -178,6 +209,11 @@ def delete_todo(todo_id):
 
         cur = conn.cursor()
         cur.execute("DELETE FROM todos WHERE id = %s;", (todo_id,))
+
+        # Check if any row was affected by the DELETE
+        if cur.rowcount == 0:
+            conn.close()  # Close the connection before returning
+            return jsonify({'error': 'Todo not found'}), 404
         conn.commit()
         cur.close()
         conn.close()

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/todos"
+import { API_URL } from "../constant/config"
 
 export const fetchTasks = async () => {
   const response = await fetch(API_URL)

@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { TaskItem } from "./components/TaskItem"
 import { fetchTasks } from "./utils/fetchTasks"
+import { API_URL } from "./constant/config"
 
 export default function App() {
   const [newTask, setNewTask] = useState("")
@@ -16,7 +17,7 @@ export default function App() {
 
     const newTaskObj = {
       title: newTask,
-      status: false // Set default status to false
+      status: false
     }
 
     try {
@@ -34,6 +35,26 @@ export default function App() {
       console.error("Error adding task:", error)
       // Handle error, e.g., show an error message to the user
       alert("Error adding task")
+    }
+  }
+
+  const editTask = async (id) => {
+    if (newTask.trim() === "") return
+    try {
+      await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title: newTask, status: false })
+      })
+      setEditingTask(null)
+      setNewTask("")
+      refetch()
+    } catch (error) {
+      console.error("Error updating task:", error)
+      // Handle error, e.g., show an error message to the user
+      alert("Error updating task")
     }
   }
 
@@ -75,22 +96,7 @@ export default function App() {
 
     if (editingTask) {
       // If editingTask is not null, it means we're editing
-      try {
-        await fetch(`${API_URL}/${editingTask.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ title: newTask, status: editingTask.status })
-        })
-        setEditingTask(null)
-        setNewTask("")
-        refetch()
-      } catch (error) {
-        console.error("Error updating task:", error)
-        // Handle error, e.g., show an error message to the user
-        alert("Error updating task")
-      }
+      editTask(editingTask.id) // Call the editTask function for existing tasks
     } else {
       // Otherwise, we're adding a new task
       addTask(e) // Call the addTask function for new tasks
@@ -107,8 +113,13 @@ export default function App() {
     setNewTask("")
   }
 
-  const ongoingTasks = tasks.filter((task) => !task.status) // Filter by 'status'
-  const completedTasks = tasks.filter((task) => task.status) // Filter by 'status'
+  const ongoingTasks = tasks
+    .filter((task) => !task.status)
+    .sort((a, b) => new Date(a.last_update) - new Date(b.last_update)) // Sort by last_update ASC
+
+  const completedTasks = tasks
+    .filter((task) => task.status)
+    .sort((a, b) => new Date(b.last_update) - new Date(a.last_update)) // Sort by last_update DESC
 
   return (
     <div className="min-h-screen px-4 py-8 bg-gray-100 sm:px-6 lg:px-8">
