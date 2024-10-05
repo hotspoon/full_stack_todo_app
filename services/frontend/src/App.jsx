@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, CircleX } from "lucide-react"
 
 const API_URL = "http://localhost:5000/todos"
 
@@ -134,7 +134,7 @@ export default function App() {
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               placeholder="Enter task title"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#1ea8f8] focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none "
             />
             <div className="mt-2">
               {editingTask ? (
@@ -142,14 +142,14 @@ export default function App() {
                   <div className="flex justify-center">
                     <button
                       type="submit"
-                      className="mr-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FFB46F] hover:bg-[#ff8c20]"
+                      className="mr-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-black bg-[#FFB46F] hover:bg-[#ff8c20]"
                     >
                       Update Task
                     </button>
                     <button
                       type="button"
                       onClick={cancelEditing}
-                      className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-white bg-[#FF6F6F] hover:bg-[#ff2020]"
+                      className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-black bg-[#FF6F6F] hover:bg-[#ff2020]"
                     >
                       Cancel
                     </button>
@@ -159,7 +159,7 @@ export default function App() {
                 <div className="flex justify-center">
                   <button
                     type="submit"
-                    className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-[#0F0F0F] bg-[#6FCBFF] hover:bg-[#27b0ff] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-[#0F0F0F] bg-[#6FCBFF] hover:bg-[#27b0ff] focus:outline-none"
                   >
                     Add Task
                   </button>
@@ -224,7 +224,7 @@ function TaskItem({ task, onDelete, onToggle, onEdit }) {
         <div>
           <button
             onClick={() => onEdit(task)}
-            className="p-1 text-[#33363F] rounded-full hover:text-[#000000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="p-1 text-[#33363F] rounded-full hover:text-[#000000] focus:outline-none"
           >
             <Pencil className="w-5 h-5" />
           </button>
@@ -233,9 +233,9 @@ function TaskItem({ task, onDelete, onToggle, onEdit }) {
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onDelete(task.id)}
-          className="p-1 text-[#33363F] rounded-full hover:text-[#000000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="p-1 text-[#33363F] rounded-full hover:text-[#000000] focus:outline-none"
         >
-          <Trash2 className="w-5 h-5" />
+          <CircleX className="w-5 h-5" />
         </button>
         <input
           type="checkbox"
